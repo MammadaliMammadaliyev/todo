@@ -3,6 +3,7 @@ from celery import shared_task
 from .models import Task, TaskNotification
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db import transaction
 
 
 @shared_task
@@ -13,12 +14,13 @@ def check_task_deadlines():
     for task in tasks:
         if task.user and task.user.email:
             if not TaskNotification.objects.filter(task=task).exists():
-                send_mail(
-                    subject="Task Deadline Reminder",
-                    message=f"Dear {task.user.username}, your task '{task.title}' is approaching its deadline.",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[task.user.email],
-                    fail_silently=True,
-                )
+                with transaction.atomic():
+                    send_mail(
+                        subject="Task Deadline Reminder",
+                        message=f"Dear {task.user.username}, your task '{task.title}' is approaching its deadline.",
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[task.user.email],
+                        fail_silently=True,
+                    )
 
-                TaskNotification.objects.create(task=task)
+                    TaskNotification.objects.create(task=task)
