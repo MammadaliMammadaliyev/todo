@@ -14,5 +14,10 @@ class Task(models.Model):
     deadline = models.DateTimeField(null=True, blank=True)    
     is_completed = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "Todo Task"
+        verbose_name_plural = "Todo Tasks"
+        ordering = ["-deadline"]
+
     def __str__(self):
         return self.title
