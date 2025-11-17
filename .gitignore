@@ -69,3 +69,6 @@ venv.bak/
 
 # VS Code
 .vscode/
+
+*.rdb
+*/celerybeat-schedule*
